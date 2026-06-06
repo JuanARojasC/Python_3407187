@@ -1,26 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+from modelos.clientes import Cliente
+from modelos.facturas import Factura
+from modelos.transacciones import Transaccion
 clientes = []
 facturas = []
 transacciones = []
-
-class Cliente(BaseModel):
-    id: int
-    nombre: str
-    descripcion: str | None = None
-
-class Factura(BaseModel):
-    id: int
-    fecha: str
-    valor_total: float
-    cliente: int
-
-class Transaccion(BaseModel):
-    id: int
-    vr_unitario: float
-    cantidad: int
-    factura_id: int
 
 app = FastAPI()
 
