@@ -1,10 +1,11 @@
 from pydantic import BaseModel
+
 class ClienteBase(BaseModel):
     nombre: str
     descripcion: str | None = None
 
-class ClienteAU(ClienteBase):
+class ClienteCrear(ClienteBase):
     pass
 
 class Cliente(ClienteBase):
-    id: int
+    id: int | None = None
