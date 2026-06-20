@@ -1,6 +1,14 @@
 from pydantic import BaseModel
-class Transaccion(BaseModel):
-    id: int
+class TransaccionBase(BaseModel):
     vr_unitario: float
     cantidad: int
-    factura_id: int
+
+class TransaccionCrear(TransaccionBase):
+    pass
+
+class TransaccionEditar(TransaccionBase):
+    pass
+
+class Transaccion(TransaccionBase):
+    id : int  | None = None
+    factura_id: int | None = None
