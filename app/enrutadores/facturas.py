@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
-from app.modelos.facturas import Factura, FacturaCrear, FacturaEditar
+from app.modelos.clientes import Cliente
+from app.modelos.facturas import Factura, FacturaCrear, FacturaEditar, FacturaLeer, FacturaLeerCompuesta
 rutas_facturas = APIRouter()
 from app.conexion_bd import Sesion_dependencia
 from app.listas import clientes, facturas
@@ -8,10 +9,10 @@ from sqlmodel import select
 
 # FACTURAS
 
-@rutas_facturas.get("/facturas", response_model=list[Factura])
+@rutas_facturas.get("/facturas", response_model=list[FacturaLeerCompuesta])
 async def listar_facturas(sesion:Sesion_dependencia ):
     #Select * from factura
-    consulta = select(Factura)
+    consulta = select(Factura) 
     lista_facts=sesion.exec(consulta).all()
     return lista_facts 
 
@@ -34,18 +35,16 @@ async def crear_factura(cliente_id: int, datos_factura: FacturaCrear, sesion:Ses
 
     cliente_encontrado = sesion.get(Cliente, cliente_id)
 
-
-
     if not cliente_encontrado:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El cl iente no existe"
+            detail="El cliente no existe"
         )
     #Validar datos factura- json, pasar a dict
     factura_dict = datos_factura.model_dump()
     factura_dict ["cliente_id"]= cliente_id
+    
     factura_val = Factura.model_validate(factura_dict)
-    factura_val.cliente = cliente_encontrado
     #Guardar en DB
     sesion.add(factura_val)
     sesion.commit()

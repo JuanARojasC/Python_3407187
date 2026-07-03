@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
+from app.modelos.facturas import Factura, FacturaCrear, FacturaEditar
 from app.modelos.transacciones import Transaccion, TransaccionCrear, TransaccionEditar
+from sqlmodel import select
 from app.listas import facturas, transacciones
+from app.conexion_bd import Sesion_dependencia
 rutas_transacciones = APIRouter()
 
 # transacciones: list[Transaccion] = []
@@ -8,9 +11,10 @@ rutas_transacciones = APIRouter()
 # TRANSACCIONES
 
 @rutas_transacciones.get("/transacciones", response_model=list[Transaccion])
-async def listar_transacciones():
-    return transacciones
-
+async def listar_transacciones(sesion:Sesion_dependencia):
+    #lista_transa=sesion.exec(consulta).all()
+    #return lista_transa
+    return sesion.exec(select(Transaccion)).all()
 
 @rutas_transacciones.get("/transacciones/{transaccion_id}", response_model=Transaccion)
 async def obtener_transaccion(transaccion_id: int):
@@ -27,30 +31,22 @@ async def obtener_transaccion(transaccion_id: int):
 @rutas_transacciones.post("/transacciones/{factura_id}", response_model=Transaccion)
 async def crear_transaccion(
     factura_id: int,
-    datos_transaccion: TransaccionCrear
+    datos_transaccion: TransaccionCrear, sesion: Sesion_dependencia
 ):
-    factura_encontrada = None
-
-    for factura in facturas:
-        if factura.id == factura_id:
-            factura_encontrada = factura
-
+    factura_encontrada = sesion.get(Factura, factura_id)
     if not factura_encontrada:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="La factura no existe"
         )
-
-    transaccion_val = Transaccion.model_validate(
-        datos_transaccion.model_dump()
-    )
-
-    transaccion_val.factura_id = factura_id
-    transaccion_val.id = len(transacciones) + 1
-
-    factura_encontrada.transacciones.append(transaccion_val)
-    transacciones.append(transaccion_val)
-
+#VALIDAR DATOS - JSON Y DICT
+    transaccion_dict = datos_transaccion.model_dump()
+    transaccion_dict["factura_id"] = factura_id
+    transaccion_val = Transaccion.model_validate(transaccion_dict)
+    #GUARDAR EN DB
+    sesion.add(transaccion_val)
+    sesion.commit()
+    sesion.refresh(transaccion_val)
     return transaccion_val
 
 
