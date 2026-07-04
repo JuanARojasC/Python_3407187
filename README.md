@@ -54,7 +54,7 @@ pip install -r requierement.txt
 Ejecutar la aplicación:
 
 ```bash
-fastapi dev app/main.py
+uvicorn app.main:app --reload
 ```
 
 Documentación interactiva (Swagger UI): http://127.0.0.1:8000/docs
