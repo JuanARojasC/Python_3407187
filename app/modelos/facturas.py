@@ -31,7 +31,9 @@ class Factura(FacturaBase, table=True):
     cliente_id : int = Field(default=None, foreign_key="cliente.id")
     #RELACIONES VIRTUALES con cliente= NO EN BD
     cliente: Cliente = Relationship(back_populates="factura")
-    transacciones : list[Transaccion] = Relationship(back_populates="factura")
+    transacciones : list[Transaccion] = Relationship(back_populates="factura"
+    #BORRAR CORRECTAMENTE
+    , sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 #MODELO PARA MOSTRAR USUARIO O CLIENTE
 class FacturaLeer(FacturaBase):
     id:int 

@@ -14,7 +14,11 @@ class ClienteEditar(ClienteBase):
 class Cliente(ClienteBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     #RELACION VIRTUAL CON FACTURA
-    factura: list["Factura"]= Relationship(back_populates="cliente")
+    factura: list["Factura"]= Relationship(back_populates="cliente"
+    #BORRAR CORRECTAMENTE
+    , sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+
 
 class ClienteLeer(ClienteBase):
     id: int
